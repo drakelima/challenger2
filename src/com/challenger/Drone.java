@@ -1,43 +1,40 @@
 package com.challenger;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class Drone {
     private String name;
     private int maxWeight;
-    private List<Location> deliveries;
+    private List<List<Location>> trips;
 
     public Drone(String name, int maxWeight) {
         this.name = name;
         this.maxWeight = maxWeight;
-        this.deliveries = new ArrayList<>();
+        this.trips = new ArrayList<>();
+        this.trips.add(new ArrayList<>());
     }
 
     public String getName() {
         return name;
     }
 
-    public int getMaxWeight() {
-        return maxWeight;
+    public boolean canCarry(int weight) {
+        return trips.get(trips.size()-1).isEmpty() || trips.get(trips.size()-1).get(0).getTotalWeight() + weight <= maxWeight;
     }
 
-    public List<Location> getDeliveries() {
-        return deliveries;
+    public int getNumTrips() {
+        return trips.size();
     }
 
-    public void addDelivery(Location location) {
-        deliveries.add(location);
+    public void addLocation(Location location) {
+        trips.get(trips.size()-1).add(location);
+        if (trips.get(trips.size()-1).stream().mapToInt(Location::getWeight).sum() > maxWeight) {
+            trips.add(new ArrayList<>());
+        }
     }
 
-    public void sortDeliveries() {
-        Collections.sort(deliveries, new Comparator<Location>() {
-            @Override
-            public int compare(Location o1, Location o2) {
-                return o2.getWeight() - o1.getWeight();
-            }
-        });
+    public List<Location> getTrip(int tripNum) {
+        return trips.get(tripNum);
     }
 }

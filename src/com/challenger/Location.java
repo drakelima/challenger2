@@ -16,8 +16,4 @@ public class Location {
     public int getWeight() {
         return weight;
     }
-
-    public int getTotalWeight() {
-        return weight;
-    }
 }

@@ -1,61 +1,37 @@
 package com.challenger;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+
+import java.util.*;
 
 public class DroneDeliveryService {
-    public static void main(String[] args) throws FileNotFoundException {
-        // read input file
-        Scanner scanner = new Scanner(new File("input.txt"));
-        String droneLine = scanner.nextLine();
-        String[] droneTokens = droneLine.split(", ");
+    static List<Drone> parseDrones(String line) {
+        List<String> droneStrings = Arrays.asList(line.split(", "));
         List<Drone> drones = new ArrayList<>();
-        for (int i = 0; i < droneTokens.length; i += 2) {
-            drones.add(new Drone(droneTokens[i], Integer.parseInt(droneTokens[i+1])));
+        for (int i = 0; i < droneStrings.size(); i += 2) {
+            String name = droneStrings.get(i).substring(1); // remove '['
+            String capacityString = droneStrings.get(i + 1).replaceAll("[\\[\\]\\s]+", "");
+            int maxWeight = Integer.parseInt(capacityString);
+            drones.add(new Drone(name, maxWeight));
         }
+        return drones;
+    }
+
+
+    static List<Location> parseLocations(Scanner scanner) {
         List<Location> locations = new ArrayList<>();
         while (scanner.hasNextLine()) {
-            String locationLine = scanner.nextLine();
-            String[] locationTokens = locationLine.split(", ");
-            locations.add(new Location(locationTokens[0], Integer.parseInt(locationTokens[1])));
-        }
-        scanner.close();
-
-        // sort locations by weight in descending order
-        locations.sort(Comparator.comparingInt(Location::getWeight).reversed());
-
-        // assign locations to drones
-        for (Location location : locations) {
-            Drone availableDrone = null;
-            for (Drone drone : drones) {
-                if (drone.canCarry(location.getWeight()) && (availableDrone == null || availableDrone.getNumTrips() > drone.getNumTrips())) {
-                    availableDrone = drone;
-                }
+            String line = scanner.nextLine();
+            if (line.isEmpty()) {
+                break;
             }
-            if (availableDrone != null) {
-                availableDrone.addLocation(location);
-            } else {
-                System.out.println("No drone available for location " + location.getName());
-            }
+            String name = line.substring(1, line.indexOf("]"));
+            String weightString = line.substring(line.lastIndexOf("[") + 1, line.lastIndexOf("]"));
+            System.out.println("weightString: " + weightString);
+            int weight = Integer.parseInt(weightString);
+            locations.add(new Location(name, weight));
         }
-
-        // print results
-        for (Drone drone : drones) {
-            System.out.println("[" + drone.getName() + "]");
-            for (int i = 0; i < drone.getNumTrips(); i++) {
-                System.out.println("Trip #" + (i+1));
-                List<Location> trip = drone.getTrip(i);
-                for (int j = 0; j < trip.size(); j++) {
-                    System.out.print(trip.get(j).getName());
-                    if (j < trip.size() - 1) {
-                        System.out.print(", ");
-                    }
-                }
-                System.out.println();
-            }
-        }
+        // Sort locations by weight (descending order)
+        locations.sort(Comparator.comparing(Location::getWeight).reversed());
+        return locations;
     }
 }
+

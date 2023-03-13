@@ -1,40 +1,63 @@
 package com.challenger;
-
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Drone {
     private String name;
-    private int maxWeight;
-    private List<List<Location>> trips;
+    private int capacity;
+    private int remainingCapacity;
+    private List<Location> deliveries;
 
-    public Drone(String name, int maxWeight) {
+    public Drone(String name, int capacity) {
         this.name = name;
-        this.maxWeight = maxWeight;
-        this.trips = new ArrayList<>();
-        this.trips.add(new ArrayList<>());
+        this.capacity = capacity;
+        this.remainingCapacity = capacity;
+        this.deliveries = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public int getRemainingCapacity() {
+        return remainingCapacity;
+    }
+
+    public List<Location> getDeliveries() {
+        return deliveries;
+    }
+
+    public void addDelivery(Location location) {
+        deliveries.add(location);
+        remainingCapacity -= location.getWeight();
+    }
+
+    public void unload() {
+        deliveries.clear();
+        remainingCapacity = capacity;
+    }
+
     public boolean canCarry(int weight) {
-        return trips.get(trips.size()-1).isEmpty() || trips.get(trips.size()-1).get(0).getTotalWeight() + weight <= maxWeight;
+        return weight <= remainingCapacity;
     }
 
-    public int getNumTrips() {
-        return trips.size();
+    public void reset() {
+        unload();
+        remainingCapacity = capacity;
     }
 
-    public void addLocation(Location location) {
-        trips.get(trips.size()-1).add(location);
-        if (trips.get(trips.size()-1).stream().mapToInt(Location::getWeight).sum() > maxWeight) {
-            trips.add(new ArrayList<>());
-        }
-    }
-
-    public List<Location> getTrip(int tripNum) {
-        return trips.get(tripNum);
+    public void sortDeliveries() {
+        Collections.sort(deliveries, new Comparator<Location>() {
+            @Override
+            public int compare(Location o1, Location o2) {
+                return o2.getWeight() - o1.getWeight();
+            }
+        });
     }
 }

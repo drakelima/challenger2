@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class DroneDeliveryService {
     public static void main(String[] args) throws FileNotFoundException {
         // read input file
-        Scanner scanner = new Scanner(new File("input2.txt"));
+        Scanner scanner = new Scanner(new File("input.txt"));
         String droneLine = scanner.nextLine();
         String[] droneTokens = droneLine.split(", ");
         List<Drone> drones = new ArrayList<>();
